@@ -6,7 +6,7 @@ import altair as alt
 import prompts
 #from tabulate import tabulate
 from PIL import Image
-from streamlit_option_menu import option_menu
+#from streamlit_option_menu import option_menu
 from io import StringIO
 
 st.set_page_config(layout="wide")
