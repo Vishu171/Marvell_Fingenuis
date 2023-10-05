@@ -31,6 +31,8 @@ Some figures may have slightly different terminology, so find the best match to 
 If the user asks about multiple figures from different financial statements, create join logic that uses the ticker and year columns. Don't use SQL terms for the table alias though. Just use a, b, c, etc.
 The user may use a company name so convert that to a ticker.
 
+
+
 Question: {question}
 Context: {context}
 
@@ -39,7 +41,7 @@ SQL: ```sql ``` \n
 """
 FS_PROMPT = PromptTemplate(input_variables=["question", "context"], template=FS_TEMPLATE, )
 
-LETTER_TEMPLATE = """ You are tasked with retreiving questions regarding Warren Buffett from his shareholder letters.
+LETTER_TEMPLATE = """ You are task is to summarize the question and retrieve data from PDF.
 Provide an answer based on this retreival, and if you can't find anything relevant, just say "I'm sorry, I couldn't find that."
 {context}
 Question: {question}
@@ -59,7 +61,7 @@ llm = ChatOpenAI(
 def get_faiss():
     " get the loaded FAISS embeddings"
     embeddings = OpenAIEmbeddings(openai_api_key=st.secrets["openai_key"])
-    return FAISS.load_local("/content/drive/MyDrive/streamlit-buffett-main/faiss_index", embeddings)
+    return FAISS.load_local("streamlit-buffett-main/faiss_index", embeddings)
 
 
 def get_pinecone():
@@ -111,3 +113,13 @@ def letter_qa(query, temperature=.1,model_name="gpt-3.5-turbo"):
                     pinecone_search(), return_source_documents=True)
     return pdf_qa({"question": query, "chat_history": ""})
 
+def summary_output(question, data):
+    prompt = f"You are an expert in financial analysis. Given the financial data and a question, analyze the data, highlight important trends or anomalies, and provide a concise summary. Utilize historical data to make a prediction, and if possible, cross-reference this information with PDFs to gather additional context.\n Question:{question}{data}\n Answer:"
+    # Generate a response using OpenAI GPT-3
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=300
+    )
+
+    return response.choices[0].text.strip()
