@@ -103,8 +103,8 @@ if authenticate_user():
       
           **Some Sample Questions:**
       
-          - What is the net income of JGSDL in 2022?
-          - What are the cash and short term investment of JGSDL  in last 4 years?
+          - What is the net income of Marvell in 2022?
+          - What are the cash and short term investment of Marvell  in last 4 years?
         
         
         """)
