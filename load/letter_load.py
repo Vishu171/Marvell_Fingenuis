@@ -9,18 +9,18 @@ import pinecone
 #import nltk
 #nltk.download('punkt')
 
-# identify the various pdf filesreamlit-buffett-main/letters/1997ltr.pdf') if 'pdf' in file]
+# identify the various pdf files
+pdfs = [file for file in os.listdir('./streamlit-buffett-main/letters/') if 'pdf' in file]
 
 # loops through each pdf in the letters directory
-# and loops the content using langchains Py
-pdfs = [file for file in os.listdir('/content/drive/MyDrive/streamlit-buffett-main/letters/') if 'pdf' in file]
+# and loops the content using langchains PyPDFLoader
 # there can likely be a better way for loading each individual doc
 # but I ran into issues with some of the other loader dependencies
 # ideally each letter would be serialized itself
 # but this approach just consolidates and loads them all in a flat list
 page_list = []
 for pdf in pdfs:
-    pdf_path = f"/content/drive/MyDrive/streamlit-buffett-main/letters/{pdf}"
+    pdf_path = f"./streamlit-buffett-main/letters/{pdf}"
     loader = PyPDFLoader(pdf_path)
     pages = loader.load()
     page_list.append(pages)
