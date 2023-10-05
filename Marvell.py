@@ -180,8 +180,8 @@ if authenticate_user():
               
         **Some Sample Questions:**
       
-        - What are the operating expenses of the JGSDL for last 2 years?
-        - What are the risks JGSDL is facing?
+        - What are the operating expenses of the Marvell for last 2 years?
+        - What are the risks Marvell is facing?
         
         """)
         
