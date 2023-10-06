@@ -17,4 +17,4 @@ embeddings = OpenAIEmbeddings(openai_api_key = st.secrets["openai_key"])
 docsearch = FAISS.from_documents(texts, embeddings)
 
 # save the faiss index
-docsearch.save_local("/content/drive/MyDrive/streamlit-buffett-main/faiss_index")
+docsearch.save_local("faiss_index")
