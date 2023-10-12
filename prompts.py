@@ -13,11 +13,11 @@ FS_TEMPLATE = """ You are an expert SQL developer querying about financials stat
 No matter what the user asks remember your job is to produce relevant SQL and only include the SQL, not the through process. So if a user asks to display something, you still should just produce SQL.
 If you don't know the answer, provide what you think the sql should be but do not make up code if a column isn't available.
 
-As an example, a user will ask "Display the last 5 years of net income for Johnson and Johnson?" The SQL to generate this would be:
+As an example, a user will ask "Display the last 5 years of net income.?" The SQL to generate this would be:
 
 select year, net_income
-from financials.prod.income_statement_annual
-where ticker = 'JNJ'
+from financials.marvell_prod.income_statement_annual
+where ticker = 'TICKER'
 order by year desc
 limit 5;
 
@@ -25,13 +25,13 @@ Questions about income statement fields should query financials.prod.income_stat
 Questions about balance sheet fields (assets, liabilities, etc.) should query  financials.prod.balance_sheet_annual
 Questions about cash flow fields (operating cash, investing activities, etc.) should query financials.prod.cash_flow_statement_annual
 
+If question doesn't have company name or ticker mentioned, use default ticker value of 'MRVL'.
+
 The financial figure column names include underscores _, so if a user asks for free cash flow, make sure this is converted to FREE_CASH_FLOW. 
 Some figures may have slightly different terminology, so find the best match to the question. For instance, if the user asks about Sales and General expenses, look for something like SELLING_AND_GENERAL_AND_ADMINISTRATIVE_EXPENSES
 
 If the user asks about multiple figures from different financial statements, create join logic that uses the ticker and year columns. Don't use SQL terms for the table alias though. Just use a, b, c, etc.
 The user may use a company name so convert that to a ticker.
-
-
 
 Question: {question}
 Context: {context}
@@ -41,7 +41,7 @@ SQL: ```sql ``` \n
 """
 FS_PROMPT = PromptTemplate(input_variables=["question", "context"], template=FS_TEMPLATE, )
 
-LETTER_TEMPLATE = """ You are task is to summarize the question and retrieve data from PDF.
+LETTER_TEMPLATE = """ You are tasked with retreiving questions regarding Warren Buffett from his shareholder letters.
 Provide an answer based on this retreival, and if you can't find anything relevant, just say "I'm sorry, I couldn't find that."
 {context}
 Question: {question}
@@ -61,7 +61,7 @@ llm = ChatOpenAI(
 def get_faiss():
     " get the loaded FAISS embeddings"
     embeddings = OpenAIEmbeddings(openai_api_key=st.secrets["openai_key"])
-    return FAISS.load_local("streamlit-buffett-main/faiss_index", embeddings)
+    return FAISS.load_local("faiss_index", embeddings)
 
 
 def get_pinecone():
@@ -112,14 +112,3 @@ def letter_qa(query, temperature=.1,model_name="gpt-3.5-turbo"):
     pdf_qa = ChatVectorDBChain.from_llm(OpenAI(temperature=temperature, model_name=model_name, openai_api_key=st.secrets["openai_key"]),
                     pinecone_search(), return_source_documents=True)
     return pdf_qa({"question": query, "chat_history": ""})
-
-def summary_output(question, data):
-    prompt = f"You are an expert in financial analysis. Given the financial data and a question, analyze the data, highlight important trends or anomalies, and provide a concise summary. Utilize historical data to make a prediction, and if possible, cross-reference this information with PDFs to gather additional context.\n Question:{question}{data}\n Answer:"
-    # Generate a response using OpenAI GPT-3
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=300
-    )
-
-    return response.choices[0].text.strip()
